@@ -337,17 +337,19 @@ class RubiksCube3D {
     }
   }
 
+  handleResize() {
+    if (!this.container || !this.renderer || !this.camera) return;
+    const width = this.container.clientWidth || 500;
+    const height = this.container.clientHeight || 500;
+    if (width > 0 && height > 0) {
+      this.camera.aspect = width / height;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(width, height);
+    }
+  }
+
   setupEvents() {
-    window.addEventListener('resize', () => {
-      if (!this.container) return;
-      const width = this.container.clientWidth;
-      const height = this.container.clientHeight;
-      if (width > 0 && height > 0) {
-        this.camera.aspect = width / height;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(width, height);
-      }
-    });
+    window.addEventListener('resize', () => this.handleResize());
   }
 
   animate() {

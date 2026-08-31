@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Rubik's Cube Solver — CV & ML Powered State Detection</title>
+  <title>CubeAI — Intelligent Rubik's Cube Vision & Solution Engine</title>
   
   <!-- Tailwind CSS & Google Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -13,7 +13,20 @@
       theme: {
         extend: {
           colors: {
-            brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+            brand: {
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+            },
+            dark: {
+              950: '#0c0e14',
+              900: '#11131a',
+              850: '#161922',
+              800: '#1c202d',
+              750: '#252b3b',
+              700: '#333b50',
+            }
           }
         }
       }
@@ -25,423 +38,961 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
-<body class="bg-[#0b0f19] text-gray-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+<body class="bg-[#0c0e14] text-slate-100 min-h-screen flex antialiased tech-grid-bg radial-glow">
 
-  <!-- Top Navigation Header -->
-  <header class="border-b border-gray-800/80 bg-[#0d1322]/80 backdrop-blur-xl sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-cyan-400 p-0.5 shadow-lg shadow-indigo-500/20">
-          <div class="w-full h-full bg-gray-900 rounded-[10px] flex items-center justify-center text-xl">
-            🧩
-          </div>
+  <!-- ==================================================================== -->
+  <!-- LEFT SIDEBAR                                                         -->
+  <!-- ==================================================================== -->
+  <aside id="sidebar" class="w-64 bg-[#11131a] border-r border-white/5 flex flex-col justify-between flex-shrink-0 z-40 transition-all duration-300 min-h-screen sticky top-0 h-screen">
+    
+    <!-- Top Branding & Navigation -->
+    <div class="flex flex-col p-4 space-y-6">
+      
+      <!-- Brand Logo Header (Matching Image 1) -->
+      <div class="flex items-center gap-3 px-2 py-1 cursor-pointer" onclick="window.app.switchTab('dashboard')">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500/20 to-indigo-500/20 border border-sky-500/30 p-1 flex items-center justify-center shadow-lg shadow-sky-500/10">
+          <svg viewBox="0 0 100 100" class="w-7 h-7" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 8L88 28V72L50 92L12 72V28L50 8Z" stroke="#38bdf8" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M50 8L50 50L88 72M50 50L12 72" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+            <path d="M28 20L50 32L72 20M50 32V62" stroke="#1e293b" stroke-width="3"/>
+            <!-- Glowing center star -->
+            <path d="M50 40L53 48L61 50L53 52L50 60L47 52L39 50L47 48L50 40Z" fill="#38bdf8" filter="drop-shadow(0 0 6px #38bdf8)"/>
+          </svg>
         </div>
         <div>
-          <h1 class="text-base font-bold bg-gradient-to-r from-white via-gray-200 to-indigo-300 bg-clip-text text-transparent">
-            AI Rubik's Cube Solver
+          <h1 class="text-base font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-sky-200 bg-clip-text text-transparent">
+            CubeAI
           </h1>
-          <p class="text-[11px] text-gray-400 font-mono">
-            Computer Vision State Detection & Two-Phase Solver
-          </p>
+          <span class="text-[10px] text-sky-400/80 font-mono tracking-wider font-semibold">NEURAL SOLVER</span>
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <nav class="flex items-center gap-1.5 p-1 bg-gray-900/90 rounded-xl border border-gray-800 text-xs font-medium">
-        <button id="tab-btn-solver" class="px-3.5 py-1.5 rounded-lg border border-transparent text-indigo-400 bg-indigo-950/40 border-indigo-500/40 transition-all">
-          🎮 3D Studio
+      <!-- Navigation Menu -->
+      <nav class="space-y-1.5 text-xs font-medium">
+        
+        <button id="tab-btn-dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left group">
+          <svg class="w-4 h-4 text-slate-400 group-hover:text-sky-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          <span>Dashboard</span>
         </button>
-        <button id="tab-btn-upload" class="px-3.5 py-1.5 rounded-lg border border-transparent text-gray-400 hover:text-gray-200 transition-all">
-          📸 Photo Upload (6 Faces)
+
+        <button id="tab-btn-solver" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-white/10 text-white font-semibold shadow-inner border border-white/10 transition-all text-left group">
+          <svg class="w-4 h-4 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+          </svg>
+          <span>Solver Tool</span>
         </button>
-        <button id="tab-btn-webcam" class="px-3.5 py-1.5 rounded-lg border border-transparent text-gray-400 hover:text-gray-200 transition-all">
-          📹 Live Webcam
+
+        <button id="tab-btn-scan" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left group">
+          <svg class="w-4 h-4 text-slate-400 group-hover:text-sky-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>Scan Cube (6 Faces)</span>
         </button>
-        <button id="tab-btn-net" class="px-3.5 py-1.5 rounded-lg border border-transparent text-gray-400 hover:text-gray-200 transition-all">
-          🎨 2D Net Editor
+
+        <button id="tab-btn-net" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left group">
+          <svg class="w-4 h-4 text-slate-400 group-hover:text-sky-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+          </svg>
+          <span>2D Net Editor</span>
         </button>
-        <button id="tab-btn-ml" class="px-3.5 py-1.5 rounded-lg border border-transparent text-gray-400 hover:text-gray-200 transition-all">
-          🧠 AI/ML Portfolio & Metrics
+
+        <button id="tab-btn-ml" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left group">
+          <svg class="w-4 h-4 text-slate-400 group-hover:text-sky-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          <span>AI / ML Research</span>
         </button>
+
+        <button id="tab-btn-history" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left group">
+          <svg class="w-4 h-4 text-slate-400 group-hover:text-sky-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Solve History</span>
+        </button>
+
+        <button id="tab-btn-settings" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left group">
+          <svg class="w-4 h-4 text-slate-400 group-hover:text-sky-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>Settings</span>
+        </button>
+
       </nav>
     </div>
-  </header>
 
-  <!-- Main Content Container -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full">
-
-    <!-- ==================================================================== -->
-    <!-- TAB 1: 3D SOLVER STUDIO                                              -->
-    <!-- ==================================================================== -->
-    <div id="tab-content-solver" class="space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        <!-- Left: 3D Three.js WebGL Canvas -->
-        <div class="lg:col-span-7 flex flex-col gap-4">
-          <div class="glass-panel p-4 rounded-2xl relative flex flex-col h-[520px] shadow-2xl">
-            <!-- 3D Canvas -->
-            <div id="canvas-container" class="flex-1 bg-gradient-to-b from-[#111827]/40 to-[#0b0f19]">
-              <!-- Overlay Hint -->
-              <div class="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-md text-[11px] text-gray-400 border border-white/5 pointer-events-none z-10">
-                🖱️ Drag to rotate view • Scroll to zoom
-              </div>
-              <button id="btn-reset-cam" class="absolute top-3 right-3 px-2.5 py-1 rounded-md bg-gray-800/80 hover:bg-gray-700 text-[11px] text-gray-300 border border-gray-700 z-10 transition-colors">
-                🎥 Reset Camera
-              </button>
-            </div>
-
-            <!-- Quick Action Toolbar -->
-            <div class="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-800/60">
-              <div class="flex items-center gap-2">
-                <button id="btn-scramble" class="px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 border border-gray-700 transition-all shadow hover:shadow-indigo-500/10">
-                  🎲 Random Scramble
-                </button>
-                <button id="btn-reset" class="px-3.5 py-2 rounded-xl bg-gray-800/60 hover:bg-gray-700 text-xs font-medium text-gray-400 hover:text-gray-200 border border-gray-800 transition-all">
-                  🔄 Reset
-                </button>
-              </div>
-
-              <button id="btn-solve" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-xs font-bold text-white shadow-lg shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
-                ⚡ Solve Cube
-              </button>
-            </div>
+    <!-- Bottom Status Card (Matching Image 2/3/6) -->
+    <div class="p-4">
+      <div class="p-3 rounded-xl bg-[#161922] border border-white/5 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="pulse-dot"></span>
+          <div>
+            <div class="text-[11px] font-bold tracking-wider text-slate-300 font-mono">NEURAL ENGINE ACTIVE</div>
+            <div class="text-[10px] text-slate-500 font-mono">v4.2.0-stable</div>
           </div>
-        </div>
-
-        <!-- Right: Step-by-Step HUD & Move Player -->
-        <div class="lg:col-span-5 flex flex-col gap-4">
-          
-          <!-- Current Move Hero Card -->
-          <div class="glass-panel p-5 rounded-2xl flex flex-col gap-4 shadow-xl border border-indigo-500/20">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-mono font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span>
-                Current Move Instruction
-              </span>
-              <span id="hud-step-counter" class="text-xs font-mono text-gray-400 bg-gray-900/80 px-2.5 py-1 rounded-full border border-gray-800">
-                Step 0 / 0
-              </span>
-            </div>
-
-            <!-- Glowing Move Display -->
-            <div class="flex items-center gap-4 bg-gray-900/90 p-4 rounded-xl border border-gray-800">
-              <div id="hud-move-badge" class="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center text-2xl font-black font-mono text-white shadow-lg shadow-indigo-500/30">
-                —
-              </div>
-              <div class="flex-1">
-                <div id="hud-action-desc" class="text-sm font-bold text-white mb-0.5">
-                  Click 'Solve Cube' to compute optimal steps
-                </div>
-                <div id="hud-face-desc" class="text-xs text-gray-400 font-mono">
-                  Ready
-                </div>
-              </div>
-            </div>
-
-            <!-- Progress Bar -->
-            <div class="space-y-1.5">
-              <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
-                <div id="hud-progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full transition-all duration-300 w-0"></div>
-              </div>
-            </div>
-
-            <!-- Player Controls -->
-            <div class="flex items-center justify-between gap-2 pt-2">
-              <button id="player-prev-btn" class="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 text-xs font-bold transition-all" title="Previous Step">
-                ⏮️ Prev
-              </button>
-
-              <button id="player-play-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-1.5">
-                ▶️ Auto Play
-              </button>
-
-              <button id="player-next-btn" class="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 text-xs font-bold transition-all" title="Next Step">
-                Next ⏭️
-              </button>
-            </div>
-
-            <!-- Speed Control -->
-            <div class="flex items-center justify-between text-xs text-gray-400 pt-1">
-              <span>Speed: <span id="speed-label" class="font-mono text-indigo-300">1.0x</span></span>
-              <input id="speed-slider" type="range" min="0.5" max="3.0" step="0.25" value="1.0" class="w-36">
-            </div>
-          </div>
-
-          <!-- Move Sequence Chip List -->
-          <div class="glass-panel p-4 rounded-2xl flex-1 flex flex-col shadow-xl">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center justify-between">
-              <span>Solution Algorithm</span>
-              <span class="text-[10px] text-gray-500">Click any move to jump</span>
-            </h3>
-            <div id="hud-moves-list" class="flex flex-wrap gap-1.5 max-h-44 overflow-y-auto p-1">
-              <span class="text-xs text-gray-500 italic">No active solution sequence.</span>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
 
-    <!-- ==================================================================== -->
-    <!-- TAB 2: PHOTO UPLOAD SCANNER (6 FACES)                                -->
-    <!-- ==================================================================== -->
-    <div id="tab-content-upload" class="hidden space-y-6">
-      <div class="glass-panel p-6 rounded-2xl shadow-xl">
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <div>
-            <h2 class="text-lg font-bold text-white flex items-center gap-2">
-              📸 6-Face Photographic Scanner
+  </aside>
+
+  <!-- ==================================================================== -->
+  <!-- MAIN APP CONTAINER                                                   -->
+  <!-- ==================================================================== -->
+  <div class="flex-1 flex flex-col min-h-screen overflow-x-hidden">
+    
+    <!-- Top Global Header -->
+    <header class="h-16 border-b border-white/5 bg-[#11131a]/60 backdrop-blur-xl px-6 flex items-center justify-between sticky top-0 z-30">
+      
+      <!-- Search Input -->
+      <div class="relative w-80">
+        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </span>
+        <input
+          id="global-search-input"
+          type="text"
+          placeholder="Search algorithms, notation, scrambles..."
+          class="w-full bg-[#161922] text-xs text-slate-200 pl-9 pr-4 py-2 rounded-xl border border-white/5 focus:outline-none focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 placeholder-slate-500 transition-all"
+        />
+      </div>
+
+      <!-- Right User Utilities -->
+      <div class="flex items-center gap-3">
+        <!-- Notification Bell -->
+        <button class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 border border-white/5 transition-colors relative">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-sky-400"></span>
+        </button>
+
+        <!-- User Profile Pill -->
+        <div class="flex items-center gap-2 pl-2 pr-3 py-1 rounded-full bg-[#161922] border border-white/5 cursor-pointer hover:bg-white/5 transition-colors">
+          <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white">
+            DU
+          </div>
+          <span class="text-xs font-semibold text-slate-300">Dev_User</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace Content -->
+    <main class="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
+
+      <!-- ================================================================== -->
+      <!-- TAB 1: DASHBOARD / LANDING (Matching Image 5)                       -->
+      <!-- ================================================================== -->
+      <div id="tab-content-dashboard" class="hidden space-y-12 animate-fadeIn">
+        
+        <!-- Hero Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center py-6">
+          <div class="lg:col-span-7 space-y-5">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-[11px] font-mono font-bold text-sky-400 uppercase tracking-wider">
+              ⚡ POWERED BY COMPUTER VISION
+            </div>
+            <h2 class="text-4xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+              Your Cube.<br>Our AI.<br><span class="bg-gradient-to-r from-sky-400 via-indigo-300 to-cyan-300 bg-clip-text text-transparent">One Solution.</span>
             </h2>
-            <p class="text-xs text-gray-400">
-              Upload photos of all 6 faces. The OpenCV pipeline rectifies perspective and segments the 9 stickers.
+            <p class="text-sm text-slate-400 max-w-xl leading-relaxed">
+              Decipher the complexity of the Rubik's Cube with state-of-the-art computer vision and neural logic. Scan, process, and execute the optimal solution path in seconds.
             </p>
+            <div class="flex flex-wrap items-center gap-3 pt-2">
+              <button onclick="window.app.switchTab('scan')" class="px-6 py-3 rounded-xl bg-white text-dark-950 hover:bg-slate-200 font-bold text-xs shadow-lg shadow-white/10 transition-all flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0">
+                <span>Start Solving</span>
+                <span>➔</span>
+              </button>
+              <button onclick="window.app.switchTab('solver')" class="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 font-semibold text-xs transition-all">
+                3D Interactive Studio
+              </button>
+            </div>
+          </div>
+
+          <!-- Hero 3D Card / Visual (Matching Image 1 / 5) -->
+          <div class="lg:col-span-5 flex justify-center">
+            <div class="cube-panel p-6 rounded-2xl relative w-full max-w-sm aspect-square flex flex-col items-center justify-center glow-primary border-sky-500/20">
+              <div class="relative w-48 h-48 flex items-center justify-center animate-pulse">
+                <svg viewBox="0 0 100 100" class="w-40 h-40 drop-shadow-[0_0_25px_rgba(56,189,248,0.4)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M50 8L88 28V72L50 92L12 72V28L50 8Z" stroke="#38bdf8" stroke-width="4" stroke-linejoin="round"/>
+                  <path d="M50 8L50 50L88 72M50 50L12 72" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+                  <!-- Inner cube stickers -->
+                  <polygon points="50,15 78,30 50,45 22,30" fill="#1e293b" opacity="0.6"/>
+                  <polygon points="22,36 46,50 46,78 22,64" fill="#0f172a" opacity="0.8"/>
+                  <polygon points="54,50 78,36 78,64 54,78" fill="#1e293b" opacity="0.7"/>
+                  <!-- Center Starburst -->
+                  <path d="M50 35L54 46L65 50L54 54L50 65L46 54L35 50L46 46L50 35Z" fill="#38bdf8" filter="drop-shadow(0 0 8px #38bdf8)"/>
+                </svg>
+              </div>
+              <span class="text-xs font-mono text-sky-400 mt-2 font-bold">Herbert Kociemba Two-Phase Engine</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Intelligent Capabilities Section -->
+        <div class="space-y-6">
+          <div class="text-center max-w-xl mx-auto space-y-2">
+            <h3 class="text-2xl font-bold text-white tracking-tight">Intelligent Capabilities</h3>
+            <p class="text-xs text-slate-400">Built on neural logic, our platform reconstructs physical puzzles into actionable digital paths.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Card 1 -->
+            <div class="cube-card p-5 rounded-2xl flex flex-col gap-3 relative overflow-hidden group">
+              <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 text-lg">
+                👁️
+              </div>
+              <h4 class="text-sm font-bold text-white">AI Vision</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Advanced state recognition. Hold your cube to the camera, and our computer vision models instantly map every face and color configuration.
+              </p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="cube-card p-5 rounded-2xl flex flex-col gap-3 relative overflow-hidden group">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-lg">
+                🧠
+              </div>
+              <h4 class="text-sm font-bold text-white">Smart Solver</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Optimized neural algorithms compute the shortest path to completion, minimizing moves using advanced subgroup reduction heuristics.
+              </p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="cube-card p-5 rounded-2xl flex flex-col gap-3 relative overflow-hidden group">
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 text-lg">
+                🎮
+              </div>
+              <h4 class="text-sm font-bold text-white">Guided Execution</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Interactive 3D overlay guides you through each turn. Step-by-step instructions ensure you execute the solution flawlessly.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Process Logic Section -->
+        <div class="space-y-6">
+          <div class="space-y-1">
+            <h3 class="text-2xl font-bold text-white tracking-tight">Process Logic</h3>
+            <p class="text-xs text-slate-400">A transparent, four-step pipeline transforming physical chaos into digital order.</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="cube-card p-4 rounded-xl space-y-2">
+              <span class="text-xs font-mono font-bold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded">01</span>
+              <h5 class="text-sm font-bold text-white">Scan Faces</h5>
+              <p class="text-xs text-slate-400">Present each side of the cube to the camera for color extraction.</p>
+            </div>
+            <div class="cube-card p-4 rounded-xl space-y-2">
+              <span class="text-xs font-mono font-bold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded">02</span>
+              <h5 class="text-sm font-bold text-white">Map State</h5>
+              <p class="text-xs text-slate-400">Constructing a 3D digital twin representing the current configuration.</p>
+            </div>
+            <div class="cube-card p-4 rounded-xl space-y-2">
+              <span class="text-xs font-mono font-bold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded">03</span>
+              <h5 class="text-sm font-bold text-white">Compute Path</h5>
+              <p class="text-xs text-slate-400">Kociemba algorithm determines the optimal sequence of moves.</p>
+            </div>
+            <div class="cube-card p-4 rounded-xl space-y-2">
+              <span class="text-xs font-mono font-bold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded">04</span>
+              <h5 class="text-sm font-bold text-white">Execute</h5>
+              <p class="text-xs text-slate-400">Follow the interactive visual guide to restore the cube.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Powered By Open Source Section -->
+        <div class="cube-panel p-6 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <span class="text-[10px] text-sky-400 font-mono uppercase tracking-widest font-bold">[ STACK ARCH ]</span>
+            <h4 class="text-lg font-bold text-white">Powered by Open Source</h4>
+            <p class="text-xs text-slate-400">Built on robust frameworks ensuring high-performance image processing and rapid computational solving.</p>
           </div>
           <div class="flex items-center gap-3">
-            <button id="btn-sample-cube" class="px-4 py-2 rounded-xl bg-purple-950/60 hover:bg-purple-900/80 border border-purple-500/40 text-purple-300 text-xs font-bold transition-all shadow-md">
-              ✨ Load Sample Scrambled Cube
-            </button>
-            <button id="btn-analyze-upload" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white text-xs font-bold transition-all shadow-lg shadow-indigo-500/25">
-              🔍 Analyze & Transfer to 3D Solver
-            </button>
+            <span class="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-slate-300">OpenCV</span>
+            <span class="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-slate-300">FastAPI</span>
+            <span class="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-slate-300">Python</span>
+            <span class="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-slate-300">Three.js</span>
           </div>
         </div>
 
-        <!-- 6 Faces Upload Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          
-          <!-- Up Face -->
-          <div class="glass-card p-4 rounded-xl border border-gray-700/60 flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-sm text-white flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-white border border-gray-400"></span>
-                Up Face (White)
-              </span>
-              <span class="text-[11px] font-mono text-gray-400">Face 'U'</span>
-            </div>
-            <div id="upload-preview-U" class="w-full h-40 bg-gray-900/90 rounded-lg border-2 border-dashed border-gray-700 flex items-center justify-center overflow-hidden">
-              <span class="text-xs text-gray-500">Drop photo or click below</span>
-            </div>
-            <input id="upload-input-U" type="file" accept="image/*" class="text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-gray-800 file:text-gray-200 hover:file:bg-gray-700">
-          </div>
-
-          <!-- Left Face -->
-          <div class="glass-card p-4 rounded-xl border border-gray-700/60 flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-sm text-white flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-orange-500"></span>
-                Left Face (Orange)
-              </span>
-              <span class="text-[11px] font-mono text-gray-400">Face 'L'</span>
-            </div>
-            <div id="upload-preview-L" class="w-full h-40 bg-gray-900/90 rounded-lg border-2 border-dashed border-gray-700 flex items-center justify-center overflow-hidden">
-              <span class="text-xs text-gray-500">Drop photo or click below</span>
-            </div>
-            <input id="upload-input-L" type="file" accept="image/*" class="text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-gray-800 file:text-gray-200 hover:file:bg-gray-700">
-          </div>
-
-          <!-- Front Face -->
-          <div class="glass-card p-4 rounded-xl border border-gray-700/60 flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-sm text-white flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-green-500"></span>
-                Front Face (Green)
-              </span>
-              <span class="text-[11px] font-mono text-gray-400">Face 'F'</span>
-            </div>
-            <div id="upload-preview-F" class="w-full h-40 bg-gray-900/90 rounded-lg border-2 border-dashed border-gray-700 flex items-center justify-center overflow-hidden">
-              <span class="text-xs text-gray-500">Drop photo or click below</span>
-            </div>
-            <input id="upload-input-F" type="file" accept="image/*" class="text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-gray-800 file:text-gray-200 hover:file:bg-gray-700">
-          </div>
-
-          <!-- Right Face -->
-          <div class="glass-card p-4 rounded-xl border border-gray-700/60 flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-sm text-white flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-red-600"></span>
-                Right Face (Red)
-              </span>
-              <span class="text-[11px] font-mono text-gray-400">Face 'R'</span>
-            </div>
-            <div id="upload-preview-R" class="w-full h-40 bg-gray-900/90 rounded-lg border-2 border-dashed border-gray-700 flex items-center justify-center overflow-hidden">
-              <span class="text-xs text-gray-500">Drop photo or click below</span>
-            </div>
-            <input id="upload-input-R" type="file" accept="image/*" class="text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-gray-800 file:text-gray-200 hover:file:bg-gray-700">
-          </div>
-
-          <!-- Back Face -->
-          <div class="glass-card p-4 rounded-xl border border-gray-700/60 flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-sm text-white flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-blue-600"></span>
-                Back Face (Blue)
-              </span>
-              <span class="text-[11px] font-mono text-gray-400">Face 'B'</span>
-            </div>
-            <div id="upload-preview-B" class="w-full h-40 bg-gray-900/90 rounded-lg border-2 border-dashed border-gray-700 flex items-center justify-center overflow-hidden">
-              <span class="text-xs text-gray-500">Drop photo or click below</span>
-            </div>
-            <input id="upload-input-B" type="file" accept="image/*" class="text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-gray-800 file:text-gray-200 hover:file:bg-gray-700">
-          </div>
-
-          <!-- Down Face -->
-          <div class="glass-card p-4 rounded-xl border border-gray-700/60 flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-sm text-white flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
-                Down Face (Yellow)
-              </span>
-              <span class="text-[11px] font-mono text-gray-400">Face 'D'</span>
-            </div>
-            <div id="upload-preview-D" class="w-full h-40 bg-gray-900/90 rounded-lg border-2 border-dashed border-gray-700 flex items-center justify-center overflow-hidden">
-              <span class="text-xs text-gray-500">Drop photo or click below</span>
-            </div>
-            <input id="upload-input-D" type="file" accept="image/*" class="text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-gray-800 file:text-gray-200 hover:file:bg-gray-700">
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- ==================================================================== -->
-    <!-- TAB 3: LIVE WEBCAM SCANNER                                           -->
-    <!-- ==================================================================== -->
-    <div id="tab-content-webcam" class="hidden space-y-6">
-      <div class="glass-panel p-6 rounded-2xl shadow-xl max-w-3xl mx-auto">
-        <div class="text-center mb-6">
-          <h2 class="text-lg font-bold text-white">📹 Live Webcam Face Scanner</h2>
-          <p class="text-xs text-gray-400 mt-1">
-            Align the cube face inside the square guide and snap each face in sequence.
-          </p>
-        </div>
-
-        <!-- Face Selector Tabs -->
-        <div class="flex justify-center gap-2 mb-4">
-          <button id="webcam-tab-U" class="px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400 text-xs font-bold font-mono">U (White)</button>
-          <button id="webcam-tab-L" class="px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400 text-xs font-bold font-mono">L (Orange)</button>
-          <button id="webcam-tab-F" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-bold font-mono">F (Green)</button>
-          <button id="webcam-tab-R" class="px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400 text-xs font-bold font-mono">R (Red)</button>
-          <button id="webcam-tab-B" class="px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400 text-xs font-bold font-mono">B (Blue)</button>
-          <button id="webcam-tab-D" class="px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400 text-xs font-bold font-mono">D (Yellow)</button>
-        </div>
-
-        <!-- Viewfinder with 3x3 Overlay Target Guide -->
-        <div class="relative w-full max-w-md mx-auto aspect-square rounded-2xl overflow-hidden bg-black border-2 border-indigo-500/40 shadow-2xl">
-          <video id="webcam-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
-          
-          <!-- 3x3 Grid Target Overlay -->
-          <div class="absolute inset-8 border-2 border-cyan-400/70 rounded-xl pointer-events-none grid grid-cols-3 grid-rows-3">
-            <div class="border-r border-b border-cyan-400/30"></div>
-            <div class="border-r border-b border-cyan-400/30"></div>
-            <div class="border-b border-cyan-400/30"></div>
-            <div class="border-r border-b border-cyan-400/30"></div>
-            <div class="border-r border-b border-cyan-400/30 flex items-center justify-center"><span class="w-2 h-2 rounded-full bg-cyan-400"></span></div>
-            <div class="border-b border-cyan-400/30"></div>
-            <div class="border-r border-cyan-400/30"></div>
-            <div class="border-r border-cyan-400/30"></div>
-            <div></div>
-          </div>
-        </div>
-
-        <!-- Snap Button -->
-        <div class="flex justify-center mt-6">
-          <button id="btn-webcam-capture" class="px-8 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-sm shadow-xl shadow-cyan-500/25 flex items-center gap-2 transform active:scale-95 transition-all">
-            📸 Snap Current Face
+        <!-- Ready to solve CTA banner -->
+        <div class="text-center py-10 space-y-4">
+          <h3 class="text-3xl font-black text-white">Ready to solve your cube?</h3>
+          <p class="text-xs text-slate-400">Initiate the solver protocol now. No account required. Just your cube and a camera.</p>
+          <button onclick="window.app.switchTab('scan')" class="px-8 py-3.5 rounded-2xl bg-white hover:bg-slate-200 text-dark-950 font-bold text-xs shadow-xl shadow-white/15 transition-all">
+            Launch Cube Solver ➔
           </button>
         </div>
+
       </div>
-    </div>
 
-    <!-- ==================================================================== -->
-    <!-- TAB 4: 2D NET MANUAL EDITOR                                         -->
-    <!-- ==================================================================== -->
-    <div id="tab-content-net" class="hidden space-y-6">
-      <div class="glass-panel p-6 rounded-2xl shadow-xl max-w-4xl mx-auto">
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <div>
-            <h2 class="text-lg font-bold text-white">🎨 2D Unfolded Cube Net Editor</h2>
-            <p class="text-xs text-gray-400">
-              Select a color from the palette below and click any sticker to customize or fix scan errors.
-            </p>
-          </div>
-          <!-- Validation Banner -->
-          <div id="validation-banner" class="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
-            ✓ Solvable Cube State
-          </div>
-        </div>
 
-        <!-- Active Palette Selector -->
-        <div class="flex flex-col items-center gap-2 mb-6">
-          <span class="text-xs text-gray-400 font-medium">Select Active Paint Color:</span>
-          <div id="net-color-palette" class="flex gap-2.5 p-2 bg-gray-900/80 rounded-xl border border-gray-800"></div>
-        </div>
-
-        <!-- Unfolded T-Net Grid -->
-        <div id="cube-net-container" class="flex justify-center my-4 overflow-x-auto py-2"></div>
-
-        <!-- Color Counts Summary -->
-        <div class="mt-6 pt-4 border-t border-gray-800/80">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 text-center">Sticker Counts (Must be exactly 9 each)</h4>
-          <div id="net-color-counts"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ==================================================================== -->
-    <!-- TAB 5: AI/ML RESEARCH & PORTFOLIO                                    -->
-    <!-- ==================================================================== -->
-    <div id="tab-content-ml" class="hidden space-y-6">
-      <div class="glass-panel p-6 rounded-2xl shadow-xl space-y-8">
+      <!-- ================================================================== -->
+      <!-- TAB 2: SCAN YOUR CUBE (Matching Image 3)                            -->
+      <!-- ================================================================== -->
+      <div id="tab-content-scan" class="hidden space-y-6 animate-fadeIn">
         
         <!-- Header -->
-        <div class="border-b border-gray-800 pb-4">
-          <h2 class="text-lg font-bold text-white flex items-center gap-2">
-            🧠 AI & Machine Learning Research Benchmark
-          </h2>
-          <p class="text-xs text-gray-400 mt-1">
-            Comparative analysis of classical Computer Vision vs Deep Learning approaches for Rubik's Cube color recognition.
+        <div class="space-y-1">
+          <h2 class="text-3xl font-black tracking-tight text-white">Scan Your Cube</h2>
+          <p class="text-xs text-slate-400 max-w-2xl">
+            Upload clear photos of all six faces of your Rubik's Cube. The neural engine requires precise visual data to map the state space accurately.
           </p>
         </div>
 
-        <!-- Model Comparison Table -->
-        <div class="space-y-3">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400">
-            📊 Model Accuracy & Latency Benchmark
-          </h3>
-          <div id="ml-benchmark-table" class="border border-gray-800 rounded-xl overflow-hidden bg-gray-900/60"></div>
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Left: 6 Face Capture Cards (3x2 Grid) -->
+          <div class="lg:col-span-8 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+              
+              <!-- Front Face (F) -->
+              <div class="cube-card p-3.5 rounded-xl border border-white/10 flex flex-col gap-2.5 relative">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Front
+                  </span>
+                  <span id="scan-badge-F" class="text-[10px] text-slate-500 font-mono">Face 'F'</span>
+                </div>
+                <div id="upload-preview-F" class="w-full h-32 bg-[#12151d] rounded-lg border border-dashed border-slate-700/80 flex flex-col items-center justify-center p-2 text-center overflow-hidden cursor-pointer" onclick="document.getElementById('upload-input-F').click()">
+                  <svg class="w-6 h-6 text-slate-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                  <span class="text-[11px] text-slate-400 font-medium">Click to capture</span>
+                  <span class="text-[9px] text-slate-600">or drag & drop</span>
+                </div>
+                <input id="upload-input-F" type="file" accept="image/*" class="hidden">
+              </div>
 
-        <!-- Confusion Matrix & Class Metrics -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
-          <!-- Left: Confusion Matrix Heatmap -->
-          <div class="lg:col-span-6 space-y-3">
-            <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400">
-              🔥 6×6 Color Confusion Matrix Heatmap
-            </h3>
-            <div id="ml-confusion-matrix" class="p-4 rounded-xl bg-gray-900/80 border border-gray-800"></div>
+              <!-- Back Face (B) -->
+              <div class="cube-card p-3.5 rounded-xl border border-white/10 flex flex-col gap-2.5 relative">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                    Back
+                  </span>
+                  <span id="scan-badge-B" class="text-[10px] text-slate-500 font-mono">Face 'B'</span>
+                </div>
+                <div id="upload-preview-B" class="w-full h-32 bg-[#12151d] rounded-lg border border-dashed border-slate-700/80 flex flex-col items-center justify-center p-2 text-center overflow-hidden cursor-pointer" onclick="document.getElementById('upload-input-B').click()">
+                  <svg class="w-6 h-6 text-slate-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                  <span class="text-[11px] text-slate-400 font-medium">Click to capture</span>
+                </div>
+                <input id="upload-input-B" type="file" accept="image/*" class="hidden">
+              </div>
+
+              <!-- Left Face (L) -->
+              <div class="cube-card p-3.5 rounded-xl border border-white/10 flex flex-col gap-2.5 relative">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                    Left
+                  </span>
+                  <span id="scan-badge-L" class="text-[10px] text-slate-500 font-mono">Face 'L'</span>
+                </div>
+                <div id="upload-preview-L" class="w-full h-32 bg-[#12151d] rounded-lg border border-dashed border-slate-700/80 flex flex-col items-center justify-center p-2 text-center overflow-hidden cursor-pointer" onclick="document.getElementById('upload-input-L').click()">
+                  <svg class="w-6 h-6 text-slate-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                  <span class="text-[11px] text-slate-400 font-medium">Click to capture</span>
+                </div>
+                <input id="upload-input-L" type="file" accept="image/*" class="hidden">
+              </div>
+
+              <!-- Right Face (R) -->
+              <div class="cube-card p-3.5 rounded-xl border border-white/10 flex flex-col gap-2.5 relative">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                    Right
+                  </span>
+                  <span id="scan-badge-R" class="text-[10px] text-slate-500 font-mono">Face 'R'</span>
+                </div>
+                <div id="upload-preview-R" class="w-full h-32 bg-[#12151d] rounded-lg border border-dashed border-slate-700/80 flex flex-col items-center justify-center p-2 text-center overflow-hidden cursor-pointer" onclick="document.getElementById('upload-input-R').click()">
+                  <svg class="w-6 h-6 text-slate-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                  <span class="text-[11px] text-slate-400 font-medium">Click to capture</span>
+                </div>
+                <input id="upload-input-R" type="file" accept="image/*" class="hidden">
+              </div>
+
+              <!-- Up Face (U) -->
+              <div class="cube-card p-3.5 rounded-xl border border-white/10 flex flex-col gap-2.5 relative">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-white border border-slate-400"></span>
+                    Up
+                  </span>
+                  <span id="scan-badge-U" class="text-[10px] text-slate-500 font-mono">Face 'U'</span>
+                </div>
+                <div id="upload-preview-U" class="w-full h-32 bg-[#12151d] rounded-lg border border-dashed border-slate-700/80 flex flex-col items-center justify-center p-2 text-center overflow-hidden cursor-pointer" onclick="document.getElementById('upload-input-U').click()">
+                  <svg class="w-6 h-6 text-slate-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                  <span class="text-[11px] text-slate-400 font-medium">Click to capture</span>
+                </div>
+                <input id="upload-input-U" type="file" accept="image/*" class="hidden">
+              </div>
+
+              <!-- Down Face (D) -->
+              <div class="cube-card p-3.5 rounded-xl border border-white/10 flex flex-col gap-2.5 relative">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+                    Down
+                  </span>
+                  <span id="scan-badge-D" class="text-[10px] text-slate-500 font-mono">Face 'D'</span>
+                </div>
+                <div id="upload-preview-D" class="w-full h-32 bg-[#12151d] rounded-lg border border-dashed border-slate-700/80 flex flex-col items-center justify-center p-2 text-center overflow-hidden cursor-pointer" onclick="document.getElementById('upload-input-D').click()">
+                  <svg class="w-6 h-6 text-slate-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                  <span class="text-[11px] text-slate-400 font-medium">Click to capture</span>
+                </div>
+                <input id="upload-input-D" type="file" accept="image/*" class="hidden">
+              </div>
+
+            </div>
+
+            <!-- Quick sample / webcam actions -->
+            <div class="flex items-center justify-between pt-2">
+              <button id="btn-sample-cube" class="px-4 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold transition-all flex items-center gap-1.5">
+                <span>✨ Load Sample Scrambled Cube</span>
+              </button>
+              <button id="btn-toggle-webcam-modal" class="px-4 py-2 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 text-xs font-bold transition-all flex items-center gap-1.5">
+                <span>📹 Open Live Webcam Scanner</span>
+              </button>
+            </div>
           </div>
 
-          <!-- Right: Precision / Recall / F1 -->
-          <div class="lg:col-span-6 space-y-3">
-            <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400">
-              🎯 Class-wise Evaluation Metrics
-            </h3>
-            <div id="ml-class-metrics"></div>
-          </div>
-        </div>
+          <!-- Right: Orientation Matrix & Progress Card (Matching Image 3) -->
+          <div class="lg:col-span-4 space-y-4">
+            
+            <!-- Orientation Matrix Card -->
+            <div class="cube-card p-5 rounded-2xl space-y-4">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono text-sky-400">🔄</span>
+                <h3 class="text-sm font-bold text-white">Orientation Matrix</h3>
+              </div>
 
-        <!-- 6-Stage Computer Vision Pipeline -->
-        <div class="space-y-3 pt-2">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400">
-            ⚙️ Computer Vision Processing Pipeline (End-to-End)
-          </h3>
-          <div id="cv-pipeline-stepper"></div>
+              <!-- Wireframe Guide Graphic -->
+              <div class="w-full aspect-video bg-[#12151d] rounded-xl border border-white/5 flex items-center justify-center p-3">
+                <svg viewBox="0 0 200 120" class="w-full h-full" fill="none">
+                  <path d="M100 20L150 45L100 70L50 45L100 20Z" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="2 2"/>
+                  <path d="M50 45V85L100 110V70L50 45Z" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="2 2"/>
+                  <path d="M150 45V85L100 110" stroke="#38bdf8" stroke-width="2.5"/>
+                  <path d="M100 20L150 45V85" stroke="#38bdf8" stroke-width="2.5"/>
+                  <circle cx="100" cy="20" r="3" fill="#38bdf8"/>
+                  <circle cx="150" cy="45" r="3" fill="#38bdf8"/>
+                  <circle cx="150" cy="85" r="3" fill="#38bdf8"/>
+                  <circle cx="100" cy="110" r="3" fill="#38bdf8"/>
+                </svg>
+              </div>
+
+              <div class="p-2.5 rounded-lg bg-black/40 border border-white/5 text-[11px] text-slate-300 font-mono flex items-center gap-2">
+                <span>ℹ️</span>
+                <span>Hold white center face UP, green center face FRONT.</span>
+              </div>
+
+              <ul class="text-[11px] text-slate-400 space-y-2">
+                <li class="flex items-center gap-2"><span>💡</span> Ensure bright, even lighting to minimize distortion.</li>
+                <li class="flex items-center gap-2"><span>🔍</span> Keep the cube centered and filling most of the frame.</li>
+                <li class="flex items-center gap-2"><span>☀️</span> Avoid harsh reflections that obscure sticker colors.</li>
+              </ul>
+            </div>
+
+            <!-- Data Acquisition Progress Card -->
+            <div class="cube-card p-5 rounded-2xl space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider font-bold">DATA ACQUISITION</span>
+                <span id="scan-progress-pct" class="text-xs font-mono text-sky-400 font-bold">0% Complete</span>
+              </div>
+
+              <div class="flex items-baseline gap-2">
+                <span id="scan-count-label" class="text-3xl font-black text-white">0</span>
+                <span class="text-xs text-slate-400">/ 6 faces uploaded</span>
+              </div>
+
+              <!-- Progress bar -->
+              <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div id="scan-progress-bar" class="h-full bg-gradient-to-r from-sky-400 to-indigo-500 rounded-full transition-all duration-300 w-0"></div>
+              </div>
+
+              <!-- Analyze Button -->
+              <button id="btn-analyze-upload" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-sky-500/20 transition-all flex items-center justify-center gap-2 transform active:scale-98">
+                <span>⚡ Analyze Cube State</span>
+              </button>
+              <p class="text-[10px] text-slate-500 text-center">Requires all 6 faces to initiate neural solver.</p>
+            </div>
+
+          </div>
+
         </div>
 
       </div>
-    </div>
 
-  </main>
+
+      <!-- ================================================================== -->
+      <!-- TAB 3: VERIFIED STATE / CHECKLIST (Matching Image 2)                -->
+      <!-- ================================================================== -->
+      <div id="tab-content-verified" class="hidden space-y-6 animate-fadeIn">
+        
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="space-y-1">
+            <h2 class="text-3xl font-black tracking-tight text-white flex items-center gap-2.5">
+              <span class="text-sky-400">✓</span>
+              Cube State Verified
+            </h2>
+            <p class="text-xs text-slate-400 max-w-2xl">
+              Neural Engine v4.2.0 has successfully parsed the multi-angle capture. The detected state is mathematically solvable.
+            </p>
+          </div>
+          
+          <div class="px-4 py-2 rounded-xl bg-[#161922] border border-white/10 flex items-center gap-2.5">
+            <span class="text-[10px] text-slate-400 font-mono uppercase">STATUS</span>
+            <span class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+              Ready to Solve
+            </span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Left: Detected Configuration 3D Preview -->
+          <div class="lg:col-span-7 cube-card p-5 rounded-2xl flex flex-col h-[460px] relative">
+            <div class="flex items-center justify-between pb-3 border-b border-white/5 mb-3">
+              <span class="text-xs font-bold text-white flex items-center gap-2 font-mono">
+                <span>3D</span> Detected Configuration
+              </span>
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/20 text-[10px] font-mono text-sky-400">● LIVE RENDERING</span>
+              </div>
+            </div>
+            <div id="verified-canvas-container" class="flex-1 w-full h-full rounded-xl overflow-hidden bg-black/40">
+              <!-- Reuses the 3D Engine -->
+            </div>
+          </div>
+
+          <!-- Right: Validation Checklist & Metrics (Matching Image 2) -->
+          <div class="lg:col-span-5 space-y-4">
+            
+            <div class="cube-card p-5 rounded-2xl space-y-3.5">
+              <h3 class="text-sm font-bold text-white mb-2">Validation Checklist</h3>
+              
+              <div class="p-3 rounded-xl bg-[#13161f] border border-white/5 flex items-start gap-3">
+                <span class="text-sky-400 text-sm">✓</span>
+                <div>
+                  <div class="text-xs font-bold text-white">54 Stickers Detected</div>
+                  <div class="text-[11px] text-slate-400">Full structural map generated without occlusions.</div>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-[#13161f] border border-white/5 flex items-start gap-3">
+                <span class="text-sky-400 text-sm">✓</span>
+                <div>
+                  <div class="text-xs font-bold text-white">9 Stickers Per Color</div>
+                  <div class="text-[11px] text-slate-400">Distribution matches standard 3x3x3 taxonomy.</div>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-[#13161f] border border-white/5 flex items-start gap-3">
+                <span class="text-sky-400 text-sm">✓</span>
+                <div>
+                  <div class="text-xs font-bold text-white">6 Unique Colors Identified</div>
+                  <div class="flex items-center gap-1.5 mt-1">
+                    <span class="w-3 h-3 rounded bg-white border border-slate-400"></span>
+                    <span class="w-3 h-3 rounded bg-yellow-400"></span>
+                    <span class="w-3 h-3 rounded bg-red-600"></span>
+                    <span class="w-3 h-3 rounded bg-orange-500"></span>
+                    <span class="w-3 h-3 rounded bg-green-500"></span>
+                    <span class="w-3 h-3 rounded bg-blue-600"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-[#13161f] border border-white/5 flex items-start gap-3">
+                <span class="text-sky-400 text-sm">✓</span>
+                <div>
+                  <div class="text-xs font-bold text-white">Configuration is Valid</div>
+                  <div class="text-[11px] text-slate-400">Parity checks passed. No flipped edges or twisted corners.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Confidence Metric Card -->
+            <div class="cube-card p-5 rounded-2xl flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider font-bold">DETECTION CONFIDENCE</span>
+                <div class="flex items-baseline gap-1 mt-1">
+                  <span id="verified-conf-val" class="text-3xl font-black text-white">99.8</span>
+                  <span class="text-sm font-bold text-sky-400">%</span>
+                </div>
+              </div>
+              <button onclick="window.app.switchTab('solver'); window.app.solveCurrentCube();" class="px-6 py-3 rounded-xl bg-white hover:bg-slate-200 text-dark-950 font-bold text-xs shadow-lg transition-all flex items-center gap-2">
+                <span>Launch Solver</span>
+                <span>➔</span>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ================================================================== -->
+      <!-- TAB 4: SOLVER TOOL ("Your Solution Is Ready" - Image 6)             -->
+      <!-- ================================================================== -->
+      <div id="tab-content-solver" class="space-y-6 animate-fadeIn">
+        
+        <!-- Hero Solution Header -->
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="space-y-1">
+            <span class="text-[11px] font-mono font-bold text-sky-400 uppercase tracking-wider">CUBEAI NEURAL ENGINE</span>
+            <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-white">Your Solution Is Ready</h2>
+          </div>
+
+          <!-- Total Moves & Time Stats (Matching Image 6) -->
+          <div class="flex items-center gap-3">
+            <div class="p-3 rounded-2xl bg-[#161922] border border-white/5 min-w-[100px] text-center">
+              <span class="text-[9px] font-mono uppercase text-slate-400 font-bold">TOTAL MOVES</span>
+              <div id="solver-total-moves" class="text-2xl font-black text-white">0</div>
+            </div>
+            <div class="p-3 rounded-2xl bg-[#161922] border border-white/5 min-w-[100px] text-center">
+              <span class="text-[9px] font-mono uppercase text-slate-400 font-bold">EST. TIME</span>
+              <div id="solver-est-time" class="text-2xl font-black text-white">0 ms</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toolbar Buttons -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <button id="btn-scramble" class="px-4 py-2 rounded-xl bg-[#161922] hover:bg-[#1c202d] text-xs font-semibold text-slate-200 border border-white/5 transition-all flex items-center gap-1.5">
+              <span>🎲</span>
+              <span>Scramble</span>
+            </button>
+            <button id="btn-reset" class="px-3.5 py-2 rounded-xl bg-[#161922] hover:bg-[#1c202d] text-xs font-medium text-slate-400 hover:text-white border border-white/5 transition-all flex items-center gap-1.5">
+              <span>🔄</span>
+              <span>Reset</span>
+            </button>
+            <button id="btn-solve" class="px-5 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-xs font-bold text-white shadow-lg shadow-sky-500/20 transition-all flex items-center gap-1.5">
+              <span>⚡</span>
+              <span>Solve Cube</span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="btn-copy-solution" class="px-3.5 py-2 rounded-xl bg-[#161922] hover:bg-[#1c202d] text-xs font-semibold text-slate-300 border border-white/5 transition-all flex items-center gap-1.5">
+              <span>📋</span>
+              <span>Copy Solution</span>
+            </button>
+            <button id="btn-download-pdf" class="px-3.5 py-2 rounded-xl bg-[#161922] hover:bg-[#1c202d] text-xs font-semibold text-slate-300 border border-white/5 transition-all flex items-center gap-1.5">
+              <span>📄</span>
+              <span>Export Algorithm</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Main Solver Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Left Column: 3D Visualizer -->
+          <div class="lg:col-span-7 flex flex-col gap-4">
+            <div class="cube-card p-4 rounded-2xl relative flex flex-col h-[520px] shadow-2xl">
+              
+              <!-- 3D Canvas Area -->
+              <div id="canvas-container" class="flex-1 bg-gradient-to-b from-[#131620]/60 to-[#0c0e14]">
+                <div class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-mono text-sky-400 border border-white/5 pointer-events-none z-10 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-ping"></span>
+                  Live Visualization
+                </div>
+                <button id="btn-reset-cam" class="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-black/60 hover:bg-black/80 text-[10px] text-slate-300 border border-white/5 z-10 transition-colors">
+                  🎥 Reset Camera
+                </button>
+              </div>
+
+              <!-- Scrubber & Playback Controls -->
+              <div class="mt-4 pt-3 border-t border-white/5 space-y-3">
+                <!-- Progress Scrubber -->
+                <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+                  <span id="hud-step-counter">Step 0 / 0</span>
+                  <div class="flex items-center gap-2">
+                    <span>Speed: <span id="speed-label" class="text-sky-400 font-bold">1.0x</span></span>
+                    <input id="speed-slider" type="range" min="0.5" max="3.0" step="0.25" value="1.0" class="w-24">
+                  </div>
+                </div>
+                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div id="hud-progress-bar" class="h-full bg-gradient-to-r from-sky-400 to-indigo-500 rounded-full transition-all duration-200 w-0"></div>
+                </div>
+
+                <!-- Player Action Buttons -->
+                <div class="flex items-center justify-between gap-2 pt-1">
+                  <button id="player-prev-btn" class="px-4 py-2 rounded-xl bg-[#161922] hover:bg-[#1c202d] text-xs font-bold text-slate-300 border border-white/5 transition-all">
+                    ⏮️ Prev
+                  </button>
+                  <button id="player-play-btn" class="flex-1 py-2.5 px-4 rounded-xl bg-white hover:bg-slate-200 text-dark-950 font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2">
+                    ▶️ Auto Play
+                  </button>
+                  <button id="player-next-btn" class="px-4 py-2 rounded-xl bg-[#161922] hover:bg-[#1c202d] text-xs font-bold text-slate-300 border border-white/5 transition-all">
+                    Next ⏭️
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Right Column: Move Sequence Cards (Matching Image 6) -->
+          <div class="lg:col-span-5 flex flex-col gap-4">
+            <div class="cube-card p-5 rounded-2xl flex-1 flex flex-col shadow-xl max-h-[520px]">
+              
+              <div class="flex items-center justify-between pb-3 border-b border-white/5 mb-3">
+                <h3 class="text-base font-bold text-white">Move Sequence</h3>
+                <span class="px-2.5 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/20 text-[10px] font-mono text-sky-400 font-bold">Two-Phase Optimal</span>
+              </div>
+
+              <!-- Vertical Scrollable Move Sequence -->
+              <div id="hud-moves-list" class="flex-1 overflow-y-auto pr-1 space-y-2">
+                <div class="text-xs text-slate-500 italic p-4 text-center">No active solution sequence. Click 'Solve Cube' to compute.</div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ================================================================== -->
+      <!-- TAB 5: 2D NET MANUAL EDITOR                                         -->
+      <!-- ================================================================== -->
+      <div id="tab-content-net" class="hidden space-y-6 animate-fadeIn">
+        <div class="cube-card p-6 rounded-2xl shadow-xl max-w-4xl mx-auto space-y-6">
+          
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-bold text-white">🎨 2D Unfolded Net Editor</h2>
+              <p class="text-xs text-slate-400">Click any sticker on the 2D net to change its color.</p>
+            </div>
+            <div id="validation-banner" class="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+              ✓ Solvable Cube State
+            </div>
+          </div>
+
+          <!-- Color Palette Picker -->
+          <div class="flex flex-col items-center gap-2">
+            <span class="text-xs text-slate-400 font-medium">Active Color:</span>
+            <div id="net-color-palette" class="flex gap-2 p-2 bg-black/40 rounded-xl border border-white/5"></div>
+          </div>
+
+          <!-- 2D Unfolded T-Net -->
+          <div id="cube-net-container" class="flex justify-center my-4 overflow-x-auto py-2"></div>
+
+          <!-- Sticker Counts -->
+          <div class="pt-4 border-t border-white/5">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 text-center">Sticker Counts (9 each)</h4>
+            <div id="net-color-counts"></div>
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- ================================================================== -->
+      <!-- TAB 6: AI/ML RESEARCH BENCHMARKS                                    -->
+      <!-- ================================================================== -->
+      <div id="tab-content-ml" class="hidden space-y-8 animate-fadeIn">
+        <div class="cube-card p-6 rounded-2xl space-y-8">
+          
+          <div class="border-b border-white/5 pb-4">
+            <span class="text-[10px] font-mono text-sky-400 uppercase font-bold tracking-wider">NEURAL EVALUATION</span>
+            <h2 class="text-2xl font-black text-white">AI & Machine Learning Research Benchmark</h2>
+            <p class="text-xs text-slate-400 mt-1">Comparative accuracy and latency benchmarks of CV and Deep Learning classification paradigms.</p>
+          </div>
+
+          <!-- Benchmark Table -->
+          <div class="space-y-3">
+            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-sky-400">Model Accuracy & Latency Comparison</h3>
+            <div id="ml-benchmark-table" class="border border-white/5 rounded-xl overflow-hidden bg-black/30"></div>
+          </div>
+
+          <!-- Confusion Matrix & Class Metrics -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
+            <div class="lg:col-span-6 space-y-3">
+              <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-sky-400">6×6 Confusion Matrix Heatmap</h3>
+              <div id="ml-confusion-matrix" class="p-4 rounded-xl bg-black/40 border border-white/5"></div>
+            </div>
+            <div class="lg:col-span-6 space-y-3">
+              <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-sky-400">Class-wise Precision / Recall / F1</h3>
+              <div id="ml-class-metrics"></div>
+            </div>
+          </div>
+
+          <!-- 6-Stage CV Pipeline -->
+          <div class="space-y-3 pt-2">
+            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-sky-400">Computer Vision Processing Pipeline</h3>
+            <div id="cv-pipeline-stepper"></div>
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- ================================================================== -->
+      <!-- TAB 7: SOLVE HISTORY                                                -->
+      <!-- ================================================================== -->
+      <div id="tab-content-history" class="hidden space-y-6 animate-fadeIn">
+        <div class="cube-card p-6 rounded-2xl space-y-4 max-w-4xl mx-auto">
+          <div class="flex items-center justify-between border-b border-white/5 pb-4">
+            <div>
+              <h2 class="text-xl font-bold text-white">📜 Solve History</h2>
+              <p class="text-xs text-slate-400">Chronological log of executed scrambles and optimal solutions.</p>
+            </div>
+            <button onclick="window.app.clearHistory()" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-xs font-bold transition-all">
+              Clear Logs
+            </button>
+          </div>
+
+          <div id="history-log-container" class="space-y-2.5">
+            <div class="text-xs text-slate-500 p-6 text-center italic">No solve history recorded yet. Scramble or solve a cube to generate entries!</div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ================================================================== -->
+      <!-- TAB 8: SETTINGS                                                     -->
+      <!-- ================================================================== -->
+      <div id="tab-content-settings" class="hidden space-y-6 animate-fadeIn">
+        <div class="cube-card p-6 rounded-2xl space-y-6 max-w-2xl mx-auto">
+          <div class="border-b border-white/5 pb-4">
+            <h2 class="text-xl font-bold text-white">⚙️ Engine Settings</h2>
+            <p class="text-xs text-slate-400">Configure solver depth heuristics and rendering options.</p>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-black/30 border border-white/5">
+              <div>
+                <div class="text-xs font-bold text-white">Solver Algorithm Paradigm</div>
+                <div class="text-[11px] text-slate-400">Herbert Kociemba Two-Phase IDA* Subgroup Reduction</div>
+              </div>
+              <span class="px-2.5 py-1 rounded bg-sky-500/10 text-sky-400 text-xs font-mono font-bold">ACTIVE</span>
+            </div>
+
+            <div class="flex items-center justify-between p-3 rounded-xl bg-black/30 border border-white/5">
+              <div>
+                <div class="text-xs font-bold text-white">3D Rotation Easing Engine</div>
+                <div class="text-[11px] text-slate-400">Cosine S-Curve with pivot-matrix transformations</div>
+              </div>
+              <span class="text-xs font-mono text-slate-400">Smooth Cosine</span>
+            </div>
+
+            <div class="flex items-center justify-between p-3 rounded-xl bg-black/30 border border-white/5">
+              <div>
+                <div class="text-xs font-bold text-white">Color Classification Model</div>
+                <div class="text-[11px] text-slate-400">Perceptual CIE-Lab + Softmax Entropy Calibration</div>
+              </div>
+              <span class="text-xs font-mono text-emerald-400">Delta-E Lab</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+
+  <!-- ==================================================================== -->
+  <!-- MODAL: LIVE WEBCAM SCANNER                                           -->
+  <!-- ==================================================================== -->
+  <div id="webcam-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="cube-card p-6 rounded-2xl max-w-lg w-full space-y-4 relative border-sky-500/30 glow-primary">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2 font-mono">
+          <span>📹</span> Live Webcam Face Scanner
+        </h3>
+        <button id="btn-close-webcam" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <!-- Face Selectors -->
+      <div class="flex justify-center gap-1.5">
+        <button id="webcam-tab-U" class="px-2.5 py-1 rounded bg-slate-800 text-xs font-mono text-slate-300">U</button>
+        <button id="webcam-tab-L" class="px-2.5 py-1 rounded bg-slate-800 text-xs font-mono text-slate-300">L</button>
+        <button id="webcam-tab-F" class="px-2.5 py-1 rounded bg-sky-600 text-xs font-mono text-white font-bold">F</button>
+        <button id="webcam-tab-R" class="px-2.5 py-1 rounded bg-slate-800 text-xs font-mono text-slate-300">R</button>
+        <button id="webcam-tab-B" class="px-2.5 py-1 rounded bg-slate-800 text-xs font-mono text-slate-300">B</button>
+        <button id="webcam-tab-D" class="px-2.5 py-1 rounded bg-slate-800 text-xs font-mono text-slate-300">D</button>
+      </div>
+
+      <!-- Video Feed & 3x3 Grid Overlay -->
+      <div class="relative w-full aspect-square rounded-xl overflow-hidden bg-black border border-sky-500/40">
+        <video id="webcam-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+        <div class="absolute inset-8 border-2 border-sky-400/80 rounded-lg pointer-events-none grid grid-cols-3 grid-rows-3">
+          <div class="border-r border-b border-sky-400/30"></div>
+          <div class="border-r border-b border-sky-400/30"></div>
+          <div class="border-b border-sky-400/30"></div>
+          <div class="border-r border-b border-sky-400/30"></div>
+          <div class="border-r border-b border-sky-400/30 flex items-center justify-center"><span class="w-2 h-2 rounded-full bg-sky-400"></span></div>
+          <div class="border-b border-sky-400/30"></div>
+          <div class="border-r border-sky-400/30"></div>
+          <div class="border-r border-sky-400/30"></div>
+          <div></div>
+        </div>
+      </div>
+
+      <button id="btn-webcam-capture" class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-sky-500/20">
+        📸 Snap Face <span id="webcam-target-label">F</span>
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ==================================================================== -->
+  <!-- MODAL: VISION SYSTEM ERROR (Matching Image 4)                        -->
+  <!-- ==================================================================== -->
+  <div id="error-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="cube-card p-6 rounded-2xl max-w-lg w-full space-y-6 relative border-rose-500/30 glow-danger">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+          <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-400">VISION SYSTEM ERROR</span>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 font-bold">
+          ⚠️
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="text-xl font-bold text-white">We couldn't confidently read this face.</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          The neural engine detected anomalies in the image mapping. Ensure the cube face is fully visible, well-lit, and centered in the frame.
+        </p>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-black/40 border border-white/5 space-y-2 text-xs text-slate-400">
+        <span class="text-[10px] font-mono uppercase text-slate-300 font-bold">OPTIMIZATION TIPS</span>
+        <ul class="space-y-1 text-[11px]">
+          <li>• Avoid harsh glares or deep shadows.</li>
+          <li>• Keep the device parallel to the cube face.</li>
+          <li>• Ensure all 9 stickers are within the frame.</li>
+        </ul>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="document.getElementById('error-modal').classList.add('hidden')" class="flex-1 py-3 rounded-xl bg-white hover:bg-slate-200 text-dark-950 font-bold text-xs shadow-md transition-all">
+          📷 Retake Photo
+        </button>
+        <button onclick="document.getElementById('error-modal').classList.add('hidden'); window.app.switchTab('net')" class="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-slate-200 border border-white/10 font-semibold text-xs transition-all">
+          ✏️ Manual Entry (2D Net)
+        </button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-sm"></div>
