@@ -61,6 +61,33 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(data["stickers"][0]["color"], "G")
         self.assertIn("annotated_image", data)
 
+    def test_analyze_cube_endpoint(self):
+        # Create 6 synthetic face images
+        b64_images = {}
+        colors = {
+            "U": (240, 240, 240), # White
+            "R": (30, 30, 220),   # Red
+            "F": (30, 200, 30),   # Green
+            "D": (30, 220, 240),  # Yellow
+            "L": (20, 120, 240),  # Orange
+            "B": (220, 90, 30),   # Blue
+        }
+        for face, bgr in colors.items():
+            fake_img = np.zeros((300, 300, 3), dtype=np.uint8)
+            fake_img[:, :] = bgr
+            _, buf = cv2.imencode(".jpg", fake_img)
+            b64_images[face] = base64.b64encode(buf).decode("utf-8")
+
+        res = self.client.post("/api/analyze-cube", json={"images": b64_images})
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertIn("is_valid", data)
+        self.assertIn("facelet_state", data)
+        self.assertIn("color_state", data)
+        self.assertIn("faces", data)
+        self.assertIn("annotated_faces", data)
+        self.assertEqual(len(data["color_state"]), 54)
+
 
 if __name__ == '__main__':
     unittest.main()

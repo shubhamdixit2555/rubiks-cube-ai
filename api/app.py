@@ -170,7 +170,22 @@ def analyze_cube(req: AnalyzeCubeRequest):
 
         face_colors = [s["color"] for s in classified]
         color_state_list.extend(face_colors)
-        face_results[face] = classified
+        
+        # Clean stickers to omit NumPy array 'patch' and ensure JSON serializability
+        serializable_stickers = [
+            {
+                "index": s["index"],
+                "row": s["row"],
+                "col": s["col"],
+                "color": s["color"],
+                "color_name": s["color_name"],
+                "confidence": s["confidence"],
+                "probabilities": s["probabilities"],
+                "is_low_confidence": s["is_low_confidence"],
+            }
+            for s in classified
+        ]
+        face_results[face] = serializable_stickers
         annotated_images[face] = encode_image_to_base64(annotated)
         confidences.extend([s["confidence"] for s in classified])
 
@@ -272,7 +287,9 @@ if os.path.exists(STATIC_DIR):
 
 @app.get("/")
 def serve_index():
-    index_path = os.path.join(STATIC_DIR, "index.html")
+    index_path = os.path.join(BASE_DIR, "index.html")
+    if not os.path.exists(index_path):
+        index_path = os.path.join(STATIC_DIR, "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
     return {"message": "AI Rubik's Cube Solver API is running."}

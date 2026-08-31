@@ -141,21 +141,34 @@ class RubiksApp {
 
   async scrambleCube() {
     this.stopPlayback();
+    let scrambleStr = '';
+    let faceletState = '';
     try {
       const res = await fetch('/api/scramble?length=20');
       if (res.ok) {
         const data = await res.json();
-        this.currentState = data.facelet_state;
-        this.currentSolution = null;
-        this.currentStepIdx = 0;
-
-        this.cube3d.syncFromFaceletState(this.currentState);
-        this.render2DNet();
-        this.updateSolutionHUD();
-        this.validateCurrentState();
-        this.showToast(`🎲 Cube Scrambled: ${data.scramble}`, 'info');
+        scrambleStr = data.scramble;
+        faceletState = data.facelet_state;
+      } else {
+        throw new Error('API unavailable');
       }
     } catch (e) {
+      if (window.CubeEngine) {
+        scrambleStr = window.CubeEngine.generateScramble(20);
+        faceletState = window.CubeEngine.applyAlgorithm(this.currentState || window.CubeEngine.SOLVED_STATE, scrambleStr);
+      }
+    }
+
+    if (faceletState) {
+      this.currentState = faceletState;
+      this.currentSolution = null;
+      this.currentStepIdx = 0;
+      this.cube3d.syncFromFaceletState(this.currentState);
+      this.render2DNet();
+      this.updateSolutionHUD();
+      this.validateCurrentState();
+      this.showToast(`🎲 Cube Scrambled: ${scrambleStr}`, 'info');
+    } else {
       this.showToast("Failed to generate scramble", "error");
     }
   }
@@ -169,23 +182,34 @@ class RubiksApp {
     }
 
     try {
-      const res = await fetch('/api/solve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ state: this.currentState }),
-      });
+      let data = null;
+      try {
+        const res = await fetch('/api/solve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ state: this.currentState }),
+        });
+        if (res.ok) {
+          data = await res.json();
+        }
+      } catch (netErr) {
+        // Fallback to client-side solver
+      }
 
-      const data = await res.json();
-      if (res.ok && data.is_solved) {
+      if (!data && window.CubeEngine) {
+        data = window.CubeEngine.solveCube(this.currentState);
+      }
+
+      if (data && data.is_solved) {
         this.currentSolution = data;
         this.currentStepIdx = 0;
         this.updateSolutionHUD();
         this.showToast(`✨ Solution generated in ${data.solve_time_ms}ms (${data.total_moves} moves)!`, 'success');
       } else {
-        this.showToast(`Solve error: ${data.detail || data.error || 'Invalid configuration'}`, 'error');
+        this.showToast(`Solve error: ${data?.detail || data?.error || 'Invalid configuration'}`, 'error');
       }
     } catch (e) {
-      this.showToast(`Solver request failed: ${e.message}`, 'error');
+      this.showToast(`Solver error: ${e.message}`, 'error');
     } finally {
       if (solveBtn) {
         solveBtn.disabled = false;
@@ -502,23 +526,36 @@ class RubiksApp {
     const banner = document.getElementById('validation-banner');
     if (!banner) return;
 
+    let isValid = false;
+    let errorMsg = null;
+
     try {
       const res = await fetch('/api/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ state: this.currentState }),
       });
-
-      const data = await res.json();
-      if (data.is_valid) {
-        banner.className = "p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2";
-        banner.innerHTML = `✓ Configuration is physically valid & solvable!`;
+      if (res.ok) {
+        const data = await res.json();
+        isValid = data.is_valid;
+        errorMsg = data.error;
       } else {
-        banner.className = "p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2";
-        banner.innerHTML = `⚠️ ${data.error || 'Invalid configuration'}`;
+        throw new Error('API unavailable');
       }
     } catch (e) {
-      console.warn(e);
+      if (window.CubeEngine) {
+        const val = window.CubeEngine.validateCube(this.currentState);
+        isValid = val.isValid;
+        errorMsg = val.error;
+      }
+    }
+
+    if (isValid) {
+      banner.className = "p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2";
+      banner.innerHTML = `✓ Configuration is physically valid & solvable!`;
+    } else {
+      banner.className = "p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2";
+      banner.innerHTML = `⚠️ ${errorMsg || 'Invalid configuration'}`;
     }
   }
 
@@ -558,19 +595,28 @@ class RubiksApp {
     }
 
     try {
-      const res = await fetch('/api/analyze-face', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image_base64: base64Image, face_name: faceKey }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (previewContainer) {
-          previewContainer.innerHTML = `
-            <img src="${data.annotated_image}" class="w-full h-full object-cover rounded-lg shadow" />
-          `;
+      let data = null;
+      try {
+        const res = await fetch('/api/analyze-face', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image_base64: base64Image, face_name: faceKey }),
+        });
+        if (res.ok) {
+          data = await res.json();
         }
+      } catch (netErr) {
+        // Fallback
+      }
+
+      if (!data && window.CubeEngine) {
+        data = await window.CubeEngine.clientAnalyzeImage(base64Image, faceKey);
+      }
+
+      if (data && previewContainer) {
+        previewContainer.innerHTML = `
+          <img src="${data.annotated_image}" class="w-full h-full object-cover rounded-lg shadow" />
+        `;
       }
     } catch (e) {
       console.warn("Face analysis failed:", e);
@@ -639,14 +685,25 @@ class RubiksApp {
     }
 
     try {
-      const res = await fetch('/api/analyze-cube', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ images: this.uploadedImages }),
-      });
+      let data = null;
+      try {
+        const res = await fetch('/api/analyze-cube', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ images: this.uploadedImages }),
+        });
+        if (res.ok) {
+          data = await res.json();
+        }
+      } catch (netErr) {
+        // Fallback to client-side Canvas analyzer
+      }
 
-      const data = await res.json();
-      if (res.ok) {
+      if (!data && window.CubeEngine) {
+        data = await window.CubeEngine.clientAnalyzeCube(this.uploadedImages);
+      }
+
+      if (data && data.facelet_state) {
         this.currentState = data.facelet_state;
         this.cube3d.syncFromFaceletState(this.currentState);
         this.render2DNet();
@@ -654,9 +711,13 @@ class RubiksApp {
 
         // Switch to solver tab
         document.getElementById('tab-btn-solver')?.click();
-        this.showToast(`✓ Cube detected with ${data.average_confidence}% average confidence!`, 'success');
+        if (data.is_valid) {
+          this.showToast(`✓ Cube detected with ${data.average_confidence}% confidence!`, 'success');
+        } else {
+          this.showToast(`Cube state transferred. Note: ${data.validation_error || 'Parity check pending'}`, 'warning');
+        }
       } else {
-        this.showToast(`Analysis error: ${data.detail}`, 'error');
+        this.showToast(`Analysis error: ${data?.detail || data?.error || 'Failed to analyze cube'}`, 'error');
       }
     } catch (e) {
       this.showToast(`Cube analysis failed: ${e.message}`, 'error');

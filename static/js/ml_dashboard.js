@@ -13,11 +13,15 @@ class MLDashboard {
       const res = await fetch('/api/ml-metrics');
       if (res.ok) {
         this.data = await res.json();
-        this.renderAll();
+      } else {
+        throw new Error('API unavailable');
       }
     } catch (e) {
-      console.warn("Could not fetch ML metrics:", e);
+      if (window.CubeEngine && typeof window.CubeEngine.getBenchmarkMetrics === 'function') {
+        this.data = window.CubeEngine.getBenchmarkMetrics();
+      }
     }
+    this.renderAll();
   }
 
   renderAll() {
